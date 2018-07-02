@@ -1,4 +1,4 @@
-extern crate acestream;
+extern crate acestream_client as acestream;
 extern crate clap;
 extern crate crossbeam;
 
@@ -12,7 +12,7 @@ use std::time::Duration;
 use clap::{App, Arg};
 
 fn main() {
-    let matches = App::new("myapp")
+    let matches = App::new("aceplay")
         .version("0.1.0")
         .about("Launch acestream with player")
         .author("Ranadeep Biswas")

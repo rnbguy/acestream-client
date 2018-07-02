@@ -1,5 +1,5 @@
 [package]
-name = "acestream"
+name = "acestream_client"
 version = "0.1.0"
 authors = ["Ranadeep Biswas <ranadip.bswas@gmail.com>"]
 

@@ -1,4 +1,4 @@
-extern crate acestream;
+extern crate acestream_client;
 
 #[test]
 fn http_url_check() {
