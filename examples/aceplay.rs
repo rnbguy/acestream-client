@@ -17,6 +17,12 @@ fn main() {
         .about("Launch acestream with player")
         .author("Ranadeep Biswas")
         .arg(
+            Arg::with_name("server")
+                .value_name("SERVER")
+                .short("s")
+                .help("Acestream server"),
+        )
+        .arg(
             Arg::with_name("url")
                 .value_name("URL")
                 .help("Acestream link")
@@ -28,20 +34,27 @@ fn main() {
         .values_of("url")
         .unwrap()
         .collect::<String>()
-        .split("//")
-        .last()
-        .unwrap()
-        .to_owned();
+        .trim_start_matches("acestream://")
+        .to_string();
 
-    let mut engine_process = Command::new("acestreamengine")
-        .args(&["--client-console"])
-        .stdin(Stdio::null())
-        .stdout(Stdio::null())
-        .stderr(Stdio::null())
-        .spawn()
-        .unwrap();
+    let engine_process_box = match matches.values_of("server") {
+        Some(_) => None,
+        None => Some(
+            Command::new("acestreamengine")
+                .args(&["--client-console"])
+                .stdin(Stdio::null())
+                .stdout(Stdio::null())
+                .stderr(Stdio::null())
+                .spawn()
+                .unwrap(),
+        ),
+    };
+
     panic::catch_unwind(|| {
-        let mut engine: acestream::Engine = Default::default();
+        let mut engine = match matches.values_of("server") {
+            Some(ip) => acestream::Engine::new(&format!("http://{}:6878", ip.collect::<String>())),
+            None => Default::default(),
+        };
         while !engine.is_up() {
             sleep(Duration::from_secs(1));
         }
@@ -52,7 +65,7 @@ fn main() {
         let player_poll = AtomicBool::new(false);
 
         crossbeam::scope(|scope| {
-            let stat_t = scope.spawn(|| {
+            let stat_t = scope.spawn(|_| {
                 let indicator = &['⠤', '⠒', '⠉', '⠒'];
                 let mut counter = 0;
                 while stat_poll.load(Ordering::Relaxed) {
@@ -92,7 +105,7 @@ fn main() {
                 println!("\nQuitting..");
             });
 
-            let play_t = scope.spawn(|| {
+            let play_t = scope.spawn(|_| {
                 if !player_poll.load(Ordering::Relaxed) {
                     sleep(Duration::from_secs(1));
                 }
@@ -108,21 +121,25 @@ fn main() {
                 stat_poll.store(false, Ordering::Relaxed);
             });
 
-            play_t.join();
-            stat_t.join();
-        });
-    }).is_ok();
-    let mut child_kill = Command::new("pkill")
-        .args(&["-2", "-P", &engine_process.id().to_string()])
-        .stdin(Stdio::null())
-        .stdout(Stdio::null())
-        .stderr(Stdio::null())
-        .spawn()
-        .unwrap();
-    child_kill
-        .wait()
-        .expect("error when killing child processes");
-    engine_process
-        .wait()
-        .expect("error when waiting engine to finish");
+            play_t.join().expect("failed to join");
+            stat_t.join().expect("failed to join");
+        })
+        .expect("crossbeam failed");
+    })
+    .is_ok();
+    if let Some(mut engine_process) = engine_process_box {
+        let mut child_kill = Command::new("pkill")
+            .args(&["-2", "-P", &engine_process.id().to_string()])
+            .stdin(Stdio::null())
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .spawn()
+            .unwrap();
+        child_kill
+            .wait()
+            .expect("error when killing child processes");
+        engine_process
+            .wait()
+            .expect("error when waiting engine to finish");
+    }
 }

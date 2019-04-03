@@ -1,18 +1,18 @@
 [package]
 name = "acestream_client"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Ranadeep Biswas <ranadip.bswas@gmail.com>"]
 description = "Acestream client written in Rust"
 repository = "https://github.com/rnbdev/acestream-client"
 license-file = "LICENSE"
 
 [dependencies]
-reqwest = "0.8.6"
-crossbeam = "0.3.2"
-clap = "2.32.0"
-serde_derive = "1.0.69"
-serde = "1.0.69"
-serde_json = "1.0.22"
+reqwest = '*'
+crossbeam = '*'
+clap = '*'
+serde_derive = '*'
+serde = '*'
+serde_json = '*'
 
 [profile.release]
 opt-level = 3
