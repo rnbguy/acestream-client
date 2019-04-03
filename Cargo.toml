@@ -3,7 +3,7 @@ name = "acestream_client"
 version = "0.1.1"
 authors = ["Ranadeep Biswas <ranadip.bswas@gmail.com>"]
 description = "Acestream client written in Rust"
-repository = "https://github.com/rnbdev/acestream-client"
+repository = "https://github.com/rnbguy/acestream-client"
 license-file = "LICENSE"
 
 [dependencies]
