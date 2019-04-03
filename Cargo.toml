@@ -7,12 +7,12 @@ repository = "https://github.com/rnbdev/acestream-client"
 license-file = "LICENSE"
 
 [dependencies]
-reqwest = '*'
-crossbeam = '*'
-clap = '*'
-serde_derive = '*'
-serde = '*'
-serde_json = '*'
+reqwest = "0.9.13"
+crossbeam = "0.7.1"
+clap = "2.32.0"
+serde_derive = "1.0.90"
+serde = "1.0.90"
+serde_json = "1.0.39"
 
 [profile.release]
 opt-level = 3
